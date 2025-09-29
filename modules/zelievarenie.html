@@ -324,30 +324,46 @@
         .checkbox-cell {
             cursor: pointer;
             transition: all 0.3s;
-        }
-
-        .checkbox-cell input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            accent-color: #10b981;
+            font-size: 32px;
+            padding: 15px 8px !important;
         }
 
         .checkbox-cell.taken {
-            background: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.5) !important;
+            border: 2px solid #10b981 !important;
+        }
+
+        .checkbox-cell.taken::before {
+            content: '✅';
         }
 
         .checkbox-cell.missed {
-            background: rgba(220, 38, 38, 0.3);
+            background: rgba(220, 38, 38, 0.5) !important;
+            border: 2px solid #dc2626 !important;
+        }
+
+        .checkbox-cell.missed::before {
+            content: '❌';
         }
 
         .checkbox-cell.future {
-            background: rgba(107, 114, 128, 0.2);
+            background: rgba(107, 114, 128, 0.3);
             cursor: not-allowed;
+            border: 2px solid rgba(107, 114, 128, 0.5) !important;
         }
 
-        .checkbox-cell.future input {
-            cursor: not-allowed;
+        .checkbox-cell.future::before {
+            content: '⏳';
+            opacity: 0.5;
+        }
+
+        .checkbox-cell.empty {
+            background: rgba(0,0,0,0.2);
+            border: 2px solid rgba(212, 175, 55, 0.3) !important;
+        }
+
+        .checkbox-cell.empty::before {
+            content: '⬜';
             opacity: 0.3;
         }
 
@@ -392,32 +408,21 @@
             gap: 20px;
             justify-content: center;
             margin-top: 15px;
-            font-size: 12px;
+            font-size: 14px;
+            flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            border-radius: 10px;
         }
 
-        .legend-box {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-        }
-
-        .legend-taken {
-            background: rgba(16, 185, 129, 0.3);
-        }
-
-        .legend-missed {
-            background: rgba(220, 38, 38, 0.3);
-        }
-
-        .legend-future {
-            background: rgba(107, 114, 128, 0.2);
+        .legend-icon {
+            font-size: 24px;
         }
 
         @media (max-width: 600px) {
@@ -426,7 +431,7 @@
             }
 
             .schedule-table {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .schedule-table th,
@@ -434,10 +439,17 @@
                 padding: 8px 4px;
             }
 
+            .checkbox-cell {
+                font-size: 24px;
+                padding: 10px 4px !important;
+            }
+
             .legend {
-                flex-direction: column;
-                align-items: center;
                 gap: 10px;
+            }
+
+            .legend-item {
+                font-size: 12px;
             }
         }
     </style>
@@ -510,16 +522,20 @@
 
                 <div class="legend">
                     <div class="legend-item">
-                        <div class="legend-box legend-taken"></div>
+                        <div class="legend-icon">✅</div>
                         <span>Выпил</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-box legend-missed"></div>
+                        <div class="legend-icon">❌</div>
                         <span>Пропустил</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-box legend-future"></div>
+                        <div class="legend-icon">⏳</div>
                         <span>Еще не время</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon">⬜</div>
+                        <span>Нажми чтобы отметить</span>
                     </div>
                 </div>
             </div>
@@ -808,26 +824,23 @@
 
                 activeTimes.forEach(time => {
                     const isTaken = medicine.taken[dayKey][time.name] === true;
-                    const isMissed = (isPast || isToday) && !isTaken;
+                    const isMissed = !isTaken && !isFuture;
                     
                     let cellClass = 'checkbox-cell';
                     if (isTaken) {
                         cellClass += ' taken';
-                    } else if (isMissed && !isFuture) {
+                    } else if (isMissed) {
                         cellClass += ' missed';
                     } else if (isFuture) {
                         cellClass += ' future';
+                    } else {
+                        cellClass += ' empty';
                     }
 
-                    const disabled = isFuture ? 'disabled' : '';
+                    const clickHandler = isFuture ? '' : `onclick="toggleTaken(${medIndex}, ${day}, '${time.name}')"`;
                     
                     tableHTML += `
-                        <td class="${cellClass}">
-                            <input type="checkbox" 
-                                   ${isTaken ? 'checked' : ''} 
-                                   ${disabled}
-                                   onchange="markTaken(${medIndex}, ${day}, '${time.name}', this.checked)">
-                        </td>
+                        <td class="${cellClass}" ${clickHandler}></td>
                     `;
                 });
 
@@ -846,15 +859,17 @@
             return card;
         }
 
-        // Отметка приема
-        function markTaken(medIndex, day, timeOfDay, checked) {
+        // Переключение приема (клик по ячейке)
+        function toggleTaken(medIndex, day, timeOfDay) {
             const course = JSON.parse(localStorage.getItem('toshkaCourse'));
             const dayKey = `day${day}`;
             
             if (!course.medicines[medIndex].taken) course.medicines[medIndex].taken = {};
             if (!course.medicines[medIndex].taken[dayKey]) course.medicines[medIndex].taken[dayKey] = {};
             
-            course.medicines[medIndex].taken[dayKey][timeOfDay] = checked;
+            // Переключаем состояние
+            const currentState = course.medicines[medIndex].taken[dayKey][timeOfDay];
+            course.medicines[medIndex].taken[dayKey][timeOfDay] = !currentState;
             
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
             
