@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трекер здоровья Тошки</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .profile-photo-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .photo-icon {
+            font-size: 40px;
+            margin-bottom: 5px;
+        }
+
+        .edit-profile-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .edit-profile-btn:hover {
+            background: #5568d3;
+        }
+
+        .profile-view, .profile-edit {
+            display: none;
+        }
+
+        .profile-view.active, .profile-edit.active {
+            display: block;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .profile-age {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .profile-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            min-width: 120px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #333;
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .save-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .save-btn:hover {
+            background: #059669;
+        }
+
+        .cancel-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .cancel-btn:hover {
+            background: #4b5563;
+        }
+
+        .triggers-section {
+            background: #fff3cd;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .triggers-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .trigger-tag {
+            display: inline-block;
+            background: #ffc107;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px 5px 5px 0;
+            font-size: 14px;
+            position: relative;
+            padding-right: 35px;
+        }
+
+        .remove-trigger {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            color: white;
+            font-size: 16px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-trigger:hover {
+            background: rgba(0,0,0,0.4);
+        }
+
+        .add-trigger-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-trigger-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .add-trigger-btn {
+            background: #ffc107;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .add-trigger-btn:hover {
+            background: #ffca2c;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .module-btn {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .module-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .module-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .module-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .module-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .zelievarenie {
+            background: linear-gradient(135deg, #2c1810 0%, #4a3428 100%);
+        }
+
+        .zelievarenie .module-title,
+        .zelievarenie .module-subtitle {
+            color: #d4af37;
+        }
+
+        .dnevnik {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .dnevnik .module-title,
+        .dnevnik .module-subtitle {
+            color: white;
+        }
+
+        .trenirovki {
+            background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
+        }
+
+        .trenirovki .module-title,
+        .trenirovki .module-subtitle {
+            color: white;
+        }
+
+        .stolovaya {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .stolovaya .module-title,
+        .stolovaya .module-subtitle {
+            color: white;
+        }
+
+        #photoInput {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Профиль -->
+        <div class="profile-card">
+            <!-- Режим просмотра -->
+            <div class="profile-view active" id="profileView">
+                <div class="profile-header">
+                    <div class="profile-photo-container" onclick="document.getElementById('photoInput').click()">
+                        <img id="profilePhotoView" class="profile-photo" style="display: none;">
+                        <div id="photoPlaceholder" class="photo-placeholder">
+                            <div class="photo-icon">📷</div>
+                            <div>Добавить фото</div>
+                        </div>
+                    </div>
+                    <div class="profile-name" id="displayName">—</div>
+                    <div class="profile-age" id="displayAge">—</div>
+                </div>
+
+                <button class="edit-profile-btn" onclick="toggleEditMode()">✏️ Редактировать профиль</button>
+
+                <div class="profile-info">
+                    <div class="info-row">
+                        <div class="info-label">🎂 Дата рождения:</div>
+                        <div class="info-value" id="displayBirthdate">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🏥 Хронические заболевания:</div>
+                        <div class="info-value" id="displayDiseases">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">⚠️ Аллергии:</div>
+                        <div class="info-value" id="displayAllergies">—</div>
+                    </div>
+                </div>
+
+                <!-- Триггеры астмы -->
+                <div class="triggers-section">
+                    <div class="triggers-title">⚠️ МОИ ТРИГГЕРЫ АСТМЫ</div>
+                    <div id="triggersContainer"></div>
+                    <div class="add-trigger-form">
+                        <input type="text" id="newTrigger" class="add-trigger-input" placeholder="Добавить новый триггер...">
+                        <button class="add-trigger-btn" onclick="addTrigger()">+ Добавить</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Режим редактирования -->
+            <div class="profile-edit" id="profileEdit">
+                <div class="profile-header">
+                    <div class="profile-photo-container" onclick="document.getElementById('photoInput').click()">
+                        <img id="profilePhotoEdit" class="profile-photo" style="display: none;">
+                        <div id="photoPlaceholderEdit" class="photo-placeholder">
+                            <div class="photo-icon">📷</div>
+                            <div>Выбрать фото</div>
+                        </div>
+                    </div>
+                    <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+                </div>
+
+                <form onsubmit="saveProfile(event)">
+                    <div class="form-group">
+                        <label class="form-label">Имя:</label>
+                        <input type="text" id="inputName" class="form-input" placeholder="Введите имя" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Дата рождения:</label>
+                        <input type="date" id="inputBirthdate" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Хронические заболевания:</label>
+                        <textarea id="inputDiseases" class="form-textarea" placeholder="Например: Бронхиальная астма"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Аллергии:</label>
+                        <textarea id="inputAllergies" class="form-textarea" placeholder="Перечислите аллергии"></textarea>
+                    </div>
+
+                    <button type="submit" class="save-btn">💾 Сохранить</button>
+                    <button type="button" class="cancel-btn" onclick="cancelEdit()">Отмена</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Модули -->
+        <div class="modules-grid">
+            <a href="modules/zelievarenie.html" class="module-btn zelievarenie">
+                <div class="module-icon">⚡</div>
+                <div class="module-title">ЗЕЛЬЕВАРЕНИЕ</div>
+                <div class="module-subtitle">Гарри Поттер</div>
+            </a>
+
+            <a href="modules/dnevnik-poluboga.html" class="module-btn dnevnik">
+                <div class="module-icon">🔱</div>
+                <div class="module-title">ДНЕВНИК ПОЛУБОГА</div>
+                <div class="module-subtitle">Перси Джексон</div>
+            </a>
+
+            <a href="modules/trenirovki.html" class="module-btn trenirovki">
+                <div class="module-icon">💪</div>
+                <div class="module-title">ТРЕНИРОВКИ СУПЕРГЕРОЯ</div>
+                <div class="module-subtitle">Капитан Подштанник</div>
+            </a>
+
+            <a href="modules/stolovaya.html" class="module-btn stolovaya">
+                <div class="module-icon">🍎</div>
+                <div class="module-title">СТОЛОВАЯ ГЕРОЕВ</div>
+                <div class="module-subtitle">Догман</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Загрузка данных при запуске
+        window.addEventListener('DOMContentLoaded', function() {
+            loadProfile();
+            loadTriggers();
+        });
+
+        // Расчет возраста
+        function calculateAge(birthdate) {
+            const today = new Date();
+            const birth = new Date(birthdate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        // Форматирование даты
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        // Загрузка фото
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoData = e.target.result;
+                    
+                    // Показываем фото в обоих режимах
+                    document.getElementById('profilePhotoView').src = photoData;
+                    document.getElementById('profilePhotoView').style.display = 'block';
+                    document.getElementById('photoPlaceholder').style.display = 'none';
+                    
+                    document.getElementById('profilePhotoEdit').src = photoData;
+                    document.getElementById('profilePhotoEdit').style.display = 'block';
+                    document.getElementById('photoPlaceholderEdit').style.display = 'none';
+                    
+                    // Сохраняем в localStorage
+                    localStorage.setItem('toshkaPhoto', photoData);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Переключение в режим редактирования
+        function toggleEditMode() {
+            document.getElementById('profileView').classList.remove('active');
+            document.getElementById('profileEdit').classList.add('active');
+            
+            // Загружаем текущие данные в форму
+            const profile = JSON.parse(localStorage.getItem('toshkaProfile') || '{}');
+            document.getElementById('inputName').value = profile.name || '';
+            document.getElementById('inputBirthdate').value = profile.birthdate || '';
+            document.getElementById('inputDiseases').value = profile.diseases || '';
+            document.getElementById('inputAllergies').value = profile.allergies || '';
+        }
+
+        // Отмена редактирования
+        function cancelEdit() {
+            document.getElementById('profileEdit').classList.remove('active');
+            document.getElementById('profileView').classList.add('active');
+        }
+
+        // Сохранение профиля
+        function saveProfile(event) {
+            event.preventDefault();
+            
+            const profile = {
+                name: document.getElementById('inputName').value,
+                birthdate: document.getElementById('inputBirthdate').value,
+                diseases: document.getElementById('inputDiseases').value,
+                allergies: document.getElementById('inputAllergies').value
+            };
+            
+            localStorage.setItem('toshkaProfile', JSON.stringify(profile));
+            loadProfile();
+            cancelEdit();
+        }
+
+        // Загрузка профиля
+        function loadProfile() {
+            const profile = JSON.parse(localStorage.getItem('toshkaProfile') || '{}');
+            const photo = localStorage.getItem('toshkaPhoto');
+            
+            // Загрузка фото
+            if (photo) {
+                document.getElementById('profilePhotoView').src = photo;
+                document.getElementById('profilePhotoView').style.display = 'block';
+                document.getElementById('photoPlaceholder').style.display = 'none';
+                
+                document.getElementById('profilePhotoEdit').src = photo;
+                document.getElementById('profilePhotoEdit').style.display = 'block';
+                document.getElementById('photoPlaceholderEdit').style.display = 'none';
+            }
+            
+            // Загрузка данных
+            document.getElementById('displayName').textContent = profile.name || '—';
+            
+            if (profile.birthdate) {
+                const age = calculateAge(profile.birthdate);
+                document.getElementById('displayAge').textContent = `${age} лет`;
+                document.getElementById('displayBirthdate').textContent = formatDate(profile.birthdate);
+            } else {
+                document.getElementById('displayAge').textContent = '—';
+                document.getElementById('displayBirthdate').textContent = '—';
+            }
+            
+            document.getElementById('displayDiseases').textContent = profile.diseases || '—';
+            document.getElementById('displayAllergies').textContent = profile.allergies || '—';
+        }
+
+        // Загрузка триггеров
+        function loadTriggers() {
+            const triggers = JSON.parse(localStorage.getItem('toshkaTriggers') || '["❄️ Холод", "👃 Резкие запахи (вазелин, масла, парфюм)"]');
+            displayTriggers(triggers);
+        }
+
+        // Отображение триггеров
+        function displayTriggers(triggers) {
+            const container = document.getElementById('triggersContainer');
+            container.innerHTML = triggers.map((trigger, index) => `
+                <span class="trigger-tag">
+                    ${trigger}
+                    <button class="remove-trigger" onclick="removeTrigger(${index})">×</button>
+                </span>
+            `).join('');
+        }
+
+        // Добавление триггера
+        function addTrigger() {
+            const input = document.getElementById('newTrigger');
+            const newTrigger = input.value.trim();
+            
+            if (newTrigger) {
+                const triggers = JSON.parse(localStorage.getItem('toshkaTriggers') || '[]');
+                triggers.push(newTrigger);
+                localStorage.setItem('toshkaTriggers', JSON.stringify(triggers));
+                input.value = '';
+                loadTriggers();
+            }
+        }
+
+        // Удаление триггера
+        function removeTrigger(index) {
+            const triggers = JSON.parse(localStorage.getItem('toshkaTriggers') || '[]');
+            triggers.splice(index, 1);
+            localStorage.setItem('toshkaTriggers', JSON.stringify(triggers));
+            loadTriggers();
+        }
+
+        // Enter для добавления триггера
+        document.getElementById('newTrigger').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTrigger();
+            }
+        });
+    </script>
+</body>
+</html>
