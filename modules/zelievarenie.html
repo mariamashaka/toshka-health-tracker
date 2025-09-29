@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 700px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -261,18 +261,11 @@
             border: 2px solid #d4af37;
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        .potion-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
         }
 
         .potion-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: #ffd700;
             margin-bottom: 5px;
@@ -288,81 +281,74 @@
             font-size: 13px;
             color: #c9a961;
             font-style: italic;
-        }
-
-        .potion-times {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .time-slot {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0,0,0,0.3);
-            padding: 12px;
-            border-radius: 10px;
-        }
-
-        .time-icon {
-            font-size: 24px;
-        }
-
-        .time-info {
-            flex: 1;
-        }
-
-        .time-name {
-            font-size: 14px;
-            color: #d4af37;
-            font-weight: bold;
-        }
-
-        .time-clock {
-            font-size: 12px;
-            color: #c9a961;
-        }
-
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .checkbox-large {
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            accent-color: #d4af37;
-        }
-
-        .progress-bar {
-            background: rgba(0,0,0,0.4);
-            border-radius: 15px;
-            padding: 15px;
             margin-bottom: 20px;
-            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
         }
 
-        .progress-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-
-        .progress-track {
-            background: rgba(0,0,0,0.5);
-            height: 20px;
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: rgba(0,0,0,0.3);
             border-radius: 10px;
             overflow: hidden;
         }
 
-        .progress-fill {
-            background: linear-gradient(90deg, #d4af37, #ffd700);
-            height: 100%;
-            transition: width 0.5s;
+        .schedule-table th {
+            background: rgba(212, 175, 55, 0.3);
+            color: #ffd700;
+            padding: 12px 8px;
+            font-size: 13px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .schedule-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .day-cell {
+            font-weight: bold;
+            color: #d4af37;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .date-cell {
+            font-size: 11px;
+            color: #c9a961;
+        }
+
+        .checkbox-cell {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-cell input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+
+        .checkbox-cell.taken {
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        .checkbox-cell.missed {
+            background: rgba(220, 38, 38, 0.3);
+        }
+
+        .checkbox-cell.future {
+            background: rgba(107, 114, 128, 0.2);
+            cursor: not-allowed;
+        }
+
+        .checkbox-cell.future input {
+            cursor: not-allowed;
+            opacity: 0.3;
         }
 
         .achievement {
@@ -401,9 +387,57 @@
             margin-bottom: 15px;
         }
 
-        @media (max-width: 500px) {
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .legend-taken {
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        .legend-missed {
+            background: rgba(220, 38, 38, 0.3);
+        }
+
+        .legend-future {
+            background: rgba(107, 114, 128, 0.2);
+        }
+
+        @media (max-width: 600px) {
             .time-inputs {
                 grid-template-columns: 1fr;
+            }
+
+            .schedule-table {
+                font-size: 12px;
+            }
+
+            .schedule-table th,
+            .schedule-table td {
+                padding: 8px 4px;
+            }
+
+            .legend {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
             }
         }
     </style>
@@ -472,9 +506,22 @@
             </div>
 
             <div id="courseContent" style="display: none;">
-                <div class="progress-bar" id="progressBar"></div>
-
                 <div id="potionsList"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-box legend-taken"></div>
+                        <span>Выпил</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box legend-missed"></div>
+                        <span>Пропустил</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box legend-future"></div>
+                        <span>Еще не время</span>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -618,7 +665,7 @@
                             }
                         }
                     },
-                    taken: {} // здесь будут отметки по дням
+                    taken: {}
                 };
                 medicines.push(medicine);
             });
@@ -699,107 +746,101 @@
             document.getElementById('noCourseMessage').style.display = 'none';
             document.getElementById('courseContent').style.display = 'block';
 
-            const today = new Date();
-            const startDate = new Date(course.startDate);
-            const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
-            const currentDay = Math.max(1, Math.min(daysPassed, course.maxDays));
-
-            // Прогресс
-            const progressPercent = (currentDay / course.maxDays) * 100;
-            document.getElementById('progressBar').innerHTML = `
-                <div class="progress-text">📚 ДЕНЬ ${currentDay} из ${course.maxDays}</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                </div>
-            `;
-
-            // Зелья
             const potionsList = document.getElementById('potionsList');
             potionsList.innerHTML = '';
 
             course.medicines.forEach((medicine, medIndex) => {
-                if (currentDay <= medicine.official.days) {
-                    const potionCard = createPotionCard(medicine, medIndex, currentDay);
-                    potionsList.appendChild(potionCard);
-                }
+                const potionCard = createPotionCard(medicine, medIndex, course);
+                potionsList.appendChild(potionCard);
             });
 
-            checkAchievements(course, currentDay);
+            checkAchievements(course);
         }
 
-        // Создание карточки зелья
-        function createPotionCard(medicine, medIndex, currentDay) {
+        // Создание карточки зелья с таблицей
+        function createPotionCard(medicine, medIndex, course) {
             const card = document.createElement('div');
             card.className = 'potion-card';
 
-            const dayKey = `day${currentDay}`;
-            if (!medicine.taken) medicine.taken = {};
-            if (!medicine.taken[dayKey]) medicine.taken[dayKey] = {};
+            const startDate = new Date(course.startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-            let timeSlotsHTML = '';
+            // Определяем какие времена дня активны
+            const activeTimes = [];
+            if (medicine.forToshka.times.morning.enabled) activeTimes.push({name: 'morning', icon: '☀️', label: 'Утро', time: medicine.forToshka.times.morning.time});
+            if (medicine.forToshka.times.afternoon.enabled) activeTimes.push({name: 'afternoon', icon: '🌤️', label: 'Обед', time: medicine.forToshka.times.afternoon.time});
+            if (medicine.forToshka.times.evening.enabled) activeTimes.push({name: 'evening', icon: '🌙', label: 'Вечер', time: medicine.forToshka.times.evening.time});
 
-            if (medicine.forToshka.times.morning.enabled) {
-                const checked = medicine.taken[dayKey].morning ? 'checked' : '';
-                timeSlotsHTML += `
-                    <div class="time-slot">
-                        <div class="time-icon">☀️</div>
-                        <div class="time-info">
-                            <div class="time-name">Утро</div>
-                            <div class="time-clock">${medicine.forToshka.times.morning.time}</div>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="checkbox-large" ${checked} 
-                                   onchange="markTaken(${medIndex}, ${currentDay}, 'morning', this.checked)">
-                        </div>
-                    </div>
+            // Создаем заголовок таблицы
+            let tableHTML = `
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>День</th>
+                            <th>Дата</th>
+            `;
+
+            activeTimes.forEach(time => {
+                tableHTML += `<th>${time.icon}<br>${time.label}<br><span style="font-size: 10px;">${time.time}</span></th>`;
+            });
+
+            tableHTML += `</tr></thead><tbody>`;
+
+            // Создаем строки для каждого дня
+            for (let day = 1; day <= medicine.official.days; day++) {
+                const dayDate = new Date(startDate);
+                dayDate.setDate(dayDate.getDate() + (day - 1));
+                
+                const dayKey = `day${day}`;
+                if (!medicine.taken) medicine.taken = {};
+                if (!medicine.taken[dayKey]) medicine.taken[dayKey] = {};
+
+                const isPast = dayDate < today;
+                const isToday = dayDate.getTime() === today.getTime();
+                const isFuture = dayDate > today;
+
+                tableHTML += `
+                    <tr>
+                        <td class="day-cell">День ${day}</td>
+                        <td class="date-cell">${formatDateShort(dayDate)}</td>
                 `;
+
+                activeTimes.forEach(time => {
+                    const isTaken = medicine.taken[dayKey][time.name] === true;
+                    const isMissed = (isPast || isToday) && !isTaken;
+                    
+                    let cellClass = 'checkbox-cell';
+                    if (isTaken) {
+                        cellClass += ' taken';
+                    } else if (isMissed && !isFuture) {
+                        cellClass += ' missed';
+                    } else if (isFuture) {
+                        cellClass += ' future';
+                    }
+
+                    const disabled = isFuture ? 'disabled' : '';
+                    
+                    tableHTML += `
+                        <td class="${cellClass}">
+                            <input type="checkbox" 
+                                   ${isTaken ? 'checked' : ''} 
+                                   ${disabled}
+                                   onchange="markTaken(${medIndex}, ${day}, '${time.name}', this.checked)">
+                        </td>
+                    `;
+                });
+
+                tableHTML += `</tr>`;
             }
 
-            if (medicine.forToshka.times.afternoon.enabled) {
-                const checked = medicine.taken[dayKey].afternoon ? 'checked' : '';
-                timeSlotsHTML += `
-                    <div class="time-slot">
-                        <div class="time-icon">🌤️</div>
-                        <div class="time-info">
-                            <div class="time-name">Обед</div>
-                            <div class="time-clock">${medicine.forToshka.times.afternoon.time}</div>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="checkbox-large" ${checked}
-                                   onchange="markTaken(${medIndex}, ${currentDay}, 'afternoon', this.checked)">
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (medicine.forToshka.times.evening.enabled) {
-                const checked = medicine.taken[dayKey].evening ? 'checked' : '';
-                timeSlotsHTML += `
-                    <div class="time-slot">
-                        <div class="time-icon">🌙</div>
-                        <div class="time-info">
-                            <div class="time-name">Вечер</div>
-                            <div class="time-clock">${medicine.forToshka.times.evening.time}</div>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="checkbox-large" ${checked}
-                                   onchange="markTaken(${medIndex}, ${currentDay}, 'evening', this.checked)">
-                        </div>
-                    </div>
-                `;
-            }
+            tableHTML += `</tbody></table>`;
 
             card.innerHTML = `
-                <div class="potion-header">
-                    <div>
-                        <div class="potion-title">🧪 ${medicine.forToshka.magicName}</div>
-                        <div class="potion-official">${medicine.official.name}</div>
-                        <div class="potion-description">${medicine.forToshka.description}</div>
-                    </div>
-                </div>
-                <div class="potion-times">
-                    ${timeSlotsHTML}
-                </div>
+                <div class="potion-title">🧪 ${medicine.forToshka.magicName}</div>
+                <div class="potion-official">${medicine.official.name} (${medicine.official.dose})</div>
+                <div class="potion-description">${medicine.forToshka.description}</div>
+                ${tableHTML}
             `;
 
             return card;
@@ -817,16 +858,20 @@
             
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
             
-            // Проверка достижений
             setTimeout(() => displayForToshka(), 100);
         }
 
         // Проверка достижений
-        function checkAchievements(course, currentDay) {
+        function checkAchievements(course) {
             const container = document.getElementById('achievementContainer');
             container.innerHTML = '';
 
-            // Считаем дни где все принято
+            const today = new Date();
+            const startDate = new Date(course.startDate);
+            const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            const currentDay = Math.max(1, Math.min(daysPassed, course.maxDays));
+
+            // Считаем идеальные дни
             let perfectDays = 0;
             for (let day = 1; day <= currentDay; day++) {
                 let allTaken = true;
@@ -856,7 +901,23 @@
             }
 
             if (currentDay >= course.maxDays) {
-                showAchievement('⭐', 'Магистр зельеварения! Курс завершен!');
+                const allComplete = course.medicines.every(med => {
+                    for (let day = 1; day <= med.official.days; day++) {
+                        const dayKey = `day${day}`;
+                        if (!med.taken || !med.taken[dayKey]) return false;
+                        
+                        for (const time of ['morning', 'afternoon', 'evening']) {
+                            if (med.forToshka.times[time].enabled && !med.taken[dayKey][time]) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                });
+
+                if (allComplete) {
+                    showAchievement('⭐', 'Магистр зельеварения! Курс завершен идеально!');
+                }
             }
         }
 
@@ -878,6 +939,12 @@
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
             const year = date.getFullYear();
             return `${day}.${month}.${year}`;
+        }
+
+        function formatDateShort(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            return `${day}.${month}`;
         }
 
         // Автодобавление первого лекарства
