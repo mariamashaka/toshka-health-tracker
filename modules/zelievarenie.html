@@ -479,8 +479,18 @@
 
         <!-- СЕКЦИЯ ДЛЯ МАМЫ -->
         <section id="mamaSection" class="section">
-            <div class="card">
-                <h2 class="medicine-header">📋 Создать новый курс зелий</h2>
+            <!-- Карточка текущего курса -->
+            <div class="card" id="currentCourseCard" style="display: none;">
+                <h2 class="medicine-header">📌 Текущий курс</h2>
+                <div id="currentCourseInfo"></div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="showEditForm()">✏️ Редактировать курс</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="showNewCourseForm()">➕ Создать новый курс</button>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="deleteCourse()">🗑️ Удалить курс</button>
+            </div>
+
+            <!-- Форма создания/редактирования -->
+            <div class="card" id="courseFormCard">
+                <h2 class="medicine-header" id="formTitle">📋 Создать новый курс зелий</h2>
                 
                 <form id="courseForm" onsubmit="saveCourse(event)">
                     <div class="form-group">
@@ -507,14 +517,8 @@
                     </div>
 
                     <button type="submit" class="btn btn-success">💾 Сохранить курс лечения</button>
+                    <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #6b7280; color: white;" onclick="cancelForm()">Отмена</button>
                 </form>
-            </div>
-
-            <div class="card" id="currentCourseDisplay" style="display: none;">
-                <h2 class="medicine-header">📌 Текущий курс</h2>
-                <div id="currentCourseInfo"></div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="editCourse()">✏️ Редактировать курс</button>
-                <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="deleteCourse()">🗑️ Удалить курс</button>
             </div>
         </section>
 
@@ -723,11 +727,11 @@
             };
 
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
+            currentCourse = course;
             alert('✅ Курс зелий сохранен!');
             
-            // НЕ очищаем форму - оставляем как есть
-            // Просто перезагружаем отображение
-            loadCourse();
+            // Показываем карточку курса
+            showCurrentCourse();
         }
 
         // Загрузка курса
@@ -735,8 +739,60 @@
             const saved = localStorage.getItem('toshkaCourse');
             if (saved) {
                 currentCourse = JSON.parse(saved);
-                displayCurrentCourse();
+                showCurrentCourse();
+            } else {
+                showCourseForm();
             }
+        }
+
+        // Показать текущий курс (скрыть форму)
+        function showCurrentCourse() {
+            document.getElementById('currentCourseCard').style.display = 'block';
+            document.getElementById('courseFormCard').style.display = 'none';
+            displayCurrentCourse();
+        }
+
+        // Показать форму создания нового курса
+        function showNewCourseForm() {
+            if (!confirm('Создать новый курс? Текущий курс будет заменен!')) {
+                return;
+            }
+            clearForm();
+            document.getElementById('formTitle').textContent = '📋 Создать новый курс зелий';
+            document.getElementById('currentCourseCard').style.display = 'none';
+            document.getElementById('courseFormCard').style.display = 'block';
+        }
+
+        // Показать форму редактирования
+        function showEditForm() {
+            loadCourseToForm();
+            document.getElementById('formTitle').textContent = '✏️ Редактировать курс';
+            document.getElementById('currentCourseCard').style.display = 'none';
+            document.getElementById('courseFormCard').style.display = 'block';
+        }
+
+        // Показать форму (если нет курса)
+        function showCourseForm() {
+            clearForm();
+            document.getElementById('currentCourseCard').style.display = 'none';
+            document.getElementById('courseFormCard').style.display = 'block';
+        }
+
+        // Отмена (вернуться к курсу)
+        function cancelForm() {
+            if (currentCourse) {
+                showCurrentCourse();
+            } else {
+                clearForm();
+            }
+        }
+
+        // Очистить форму
+        function clearForm() {
+            document.getElementById('courseForm').reset();
+            document.getElementById('startDate').valueAsDate = new Date();
+            document.getElementById('medicinesList').innerHTML = '';
+            addMedicineForm();
         }
 
         // Отображение текущего курса
@@ -769,8 +825,8 @@
             info.innerHTML = html;
         }
 
-        // Редактирование курса
-        function editCourse() {
+        // Загрузка курса в форму для редактирования
+        function loadCourseToForm() {
             const course = JSON.parse(localStorage.getItem('toshkaCourse'));
             if (!course) return;
 
@@ -812,21 +868,16 @@
                     lastItem.querySelector('.med-time-evening-time').value = medicine.forToshka.times.evening.time;
                 }
             });
-
-            // Скроллим к форме
-            document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
-            
-            alert('Теперь можешь изменить данные и нажать "Сохранить курс лечения"');
         }
 
         // Удаление курса
         function deleteCourse() {
-            if (confirm('Удалить текущий курс лечения?')) {
+            if (confirm('Удалить текущий курс лечения? Все отметки будут потеряны!')) {
                 localStorage.removeItem('toshkaCourse');
                 currentCourse = null;
-                document.getElementById('currentCourseDisplay').style.display = 'none';
-                alert('Курс удален');
-                location.reload();
+                clearForm();
+                showCourseForm();
+                alert('✅ Курс удален');
             }
         }
 
@@ -1037,8 +1088,10 @@
                 }
             }
 
-            // Курс завершен
-            if (currentDay >= course.maxDays) {
+            // Курс завершен - только если РЕАЛЬНО прошли все дни
+            const allDaysPassed = daysPassed >= course.maxDays;
+            
+            if (allDaysPassed) {
                 if (totalMissed === 0) {
                     showAchievement('⭐', 'Магистр зельеварения! Курс завершен идеально!');
                 } else {
