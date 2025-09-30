@@ -666,8 +666,14 @@
         function saveCourse(event) {
             event.preventDefault();
 
+            const medicineItems = document.querySelectorAll('.medicine-item');
+            if (medicineItems.length === 0) {
+                alert('❌ Добавьте хотя бы одно лекарство!');
+                return;
+            }
+
             const medicines = [];
-            document.querySelectorAll('.medicine-item').forEach(item => {
+            medicineItems.forEach((item, index) => {
                 const medicine = {
                     official: {
                         name: item.querySelector('.med-name').value,
@@ -695,18 +701,18 @@
                     },
                     taken: {}
                 };
+
+                // Сохраняем данные о приемах если редактируем существующий курс
+                const existingCourse = JSON.parse(localStorage.getItem('toshkaCourse') || 'null');
+                if (existingCourse && existingCourse.medicines && existingCourse.medicines[index]) {
+                    // Проверяем что это то же самое лекарство (по названию)
+                    if (existingCourse.medicines[index].official.name === medicine.official.name) {
+                        medicine.taken = existingCourse.medicines[index].taken || {};
+                    }
+                }
+
                 medicines.push(medicine);
             });
-
-            // Сохраняем данные о приемах если редактируем существующий курс
-            const existingCourse = JSON.parse(localStorage.getItem('toshkaCourse') || 'null');
-            if (existingCourse && existingCourse.medicines) {
-                medicines.forEach((med, index) => {
-                    if (existingCourse.medicines[index] && existingCourse.medicines[index].taken) {
-                        med.taken = existingCourse.medicines[index].taken;
-                    }
-                });
-            }
 
             const course = {
                 startDate: document.getElementById('startDate').value,
@@ -719,11 +725,8 @@
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
             alert('✅ Курс зелий сохранен!');
             
-            // Очищаем форму
-            document.getElementById('courseForm').reset();
-            document.getElementById('medicinesList').innerHTML = '';
-            addMedicineForm();
-            
+            // НЕ очищаем форму - оставляем как есть
+            // Просто перезагружаем отображение
             loadCourse();
         }
 
@@ -964,61 +967,92 @@
             const daysPassed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
             const currentDay = Math.max(1, Math.min(daysPassed, course.maxDays));
 
-            // Считаем идеальные дни
-            let perfectDays = 0;
+            // Считаем ПОДРЯД идеальные дни (серия без пропусков)
+            let currentStreak = 0;
+            let lastDayWasPerfect = true;
+            
             for (let day = 1; day <= currentDay; day++) {
-                let allTaken = true;
+                let allTakenToday = true;
+                
                 course.medicines.forEach(med => {
                     const dayKey = `day${day}`;
                     if (!med.taken || !med.taken[dayKey]) {
-                        allTaken = false;
+                        allTakenToday = false;
                         return;
                     }
                     
                     ['morning', 'afternoon', 'evening'].forEach(time => {
                         if (med.forToshka.times[time].enabled && !med.taken[dayKey][time]) {
-                            allTaken = false;
+                            allTakenToday = false;
                         }
                     });
                 });
-                if (allTaken) perfectDays++;
+                
+                if (allTakenToday && lastDayWasPerfect) {
+                    currentStreak++;
+                } else if (!allTakenToday) {
+                    currentStreak = 0;
+                    lastDayWasPerfect = false;
+                } else if (allTakenToday && !lastDayWasPerfect) {
+                    currentStreak = 1;
+                    lastDayWasPerfect = true;
+                }
             }
 
-            // Достижения
-            if (perfectDays >= 2 && perfectDays < 5) {
-                showAchievement('⚡', 'Профессор Снейп доволен!');
-            } else if (perfectDays >= 5 && perfectDays < 7) {
-                showAchievement('🦉', 'Письмо от Дамблдора: Ты отличный ученик!');
-            } else if (perfectDays >= 7) {
-                showAchievement('🏆', '+50 очков Гриффиндору!');
-            }
-
-            if (currentDay >= course.maxDays) {
-                const allComplete = course.medicines.every(med => {
-                    for (let day = 1; day <= med.official.days; day++) {
-                        const dayKey = `day${day}`;
-                        if (!med.taken || !med.taken[dayKey]) return false;
-                        
-                        for (const time of ['morning', 'afternoon', 'evening']) {
-                            if (med.forToshka.times[time].enabled && !med.taken[dayKey][time]) {
-                                return false;
+            // Считаем ОБЩЕЕ количество пропусков
+            let totalMissed = 0;
+            let totalTaken = 0;
+            
+            for (let day = 1; day <= currentDay; day++) {
+                course.medicines.forEach(med => {
+                    const dayKey = `day${day}`;
+                    
+                    ['morning', 'afternoon', 'evening'].forEach(time => {
+                        if (med.forToshka.times[time].enabled) {
+                            if (med.taken && med.taken[dayKey] && med.taken[dayKey][time]) {
+                                totalTaken++;
+                            } else {
+                                totalMissed++;
                             }
                         }
-                    }
-                    return true;
+                    });
                 });
+            }
 
-                if (allComplete) {
+            // ДОСТИЖЕНИЯ только если серия БЕЗ ПРОПУСКОВ
+            if (currentStreak >= 7) {
+                showAchievement('🏆', '+50 очков Гриффиндору! 7 дней подряд без пропусков!');
+            } else if (currentStreak >= 5) {
+                showAchievement('🦉', 'Письмо от Дамблдора: 5 дней подряд идеально!');
+            } else if (currentStreak >= 2) {
+                showAchievement('⚡', `Профессор Снейп доволен! ${currentStreak} дня подряд!`);
+            }
+
+            // ПРЕДУПРЕЖДЕНИЯ если есть пропуски
+            if (totalMissed > 0 && currentStreak < 2) {
+                if (totalMissed >= 5) {
+                    showAchievement('💀', `Волан-де-Морт торжествует! Пропущено ${totalMissed} приемов!`, true);
+                } else if (totalMissed >= 3) {
+                    showAchievement('⚠️', `Внимание! Пропущено ${totalMissed} приема! Надо исправляться!`, true);
+                }
+            }
+
+            // Курс завершен
+            if (currentDay >= course.maxDays) {
+                if (totalMissed === 0) {
                     showAchievement('⭐', 'Магистр зельеварения! Курс завершен идеально!');
+                } else {
+                    showAchievement('📋', `Курс завершен. Выпито: ${totalTaken}, пропущено: ${totalMissed}`, true);
                 }
             }
         }
 
         // Показать достижение
-        function showAchievement(icon, text) {
+        function showAchievement(icon, text, isWarning = false) {
             const container = document.getElementById('achievementContainer');
+            const bgColor = isWarning ? 'linear-gradient(135deg, #dc2626, #ef4444)' : 'linear-gradient(135deg, #d4af37, #ffd700)';
             container.innerHTML = `
-                <div class="achievement">
+                <div class="achievement" style="background: ${bgColor};">
                     <div class="achievement-icon">${icon}</div>
                     <div class="achievement-text">${text}</div>
                 </div>
