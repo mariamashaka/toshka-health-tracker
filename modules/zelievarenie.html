@@ -210,6 +210,15 @@
             background: #ffd700;
         }
 
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
         .btn-success {
             background: #10b981;
             color: white;
@@ -324,30 +333,46 @@
         .checkbox-cell {
             cursor: pointer;
             transition: all 0.3s;
-        }
-
-        .checkbox-cell input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            accent-color: #10b981;
+            font-size: 32px;
+            padding: 15px 8px !important;
         }
 
         .checkbox-cell.taken {
-            background: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.5) !important;
+            border: 2px solid #10b981 !important;
+        }
+
+        .checkbox-cell.taken::before {
+            content: '✅';
         }
 
         .checkbox-cell.missed {
-            background: rgba(220, 38, 38, 0.3);
+            background: rgba(220, 38, 38, 0.5) !important;
+            border: 2px solid #dc2626 !important;
+        }
+
+        .checkbox-cell.missed::before {
+            content: '❌';
         }
 
         .checkbox-cell.future {
-            background: rgba(107, 114, 128, 0.2);
+            background: rgba(107, 114, 128, 0.3);
             cursor: not-allowed;
+            border: 2px solid rgba(107, 114, 128, 0.5) !important;
         }
 
-        .checkbox-cell.future input {
-            cursor: not-allowed;
+        .checkbox-cell.future::before {
+            content: '⏳';
+            opacity: 0.5;
+        }
+
+        .checkbox-cell.empty {
+            background: rgba(0,0,0,0.2);
+            border: 2px solid rgba(212, 175, 55, 0.3) !important;
+        }
+
+        .checkbox-cell.empty::before {
+            content: '⬜';
             opacity: 0.3;
         }
 
@@ -392,32 +417,21 @@
             gap: 20px;
             justify-content: center;
             margin-top: 15px;
-            font-size: 12px;
+            font-size: 14px;
+            flex-wrap: wrap;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            border-radius: 10px;
         }
 
-        .legend-box {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-        }
-
-        .legend-taken {
-            background: rgba(16, 185, 129, 0.3);
-        }
-
-        .legend-missed {
-            background: rgba(220, 38, 38, 0.3);
-        }
-
-        .legend-future {
-            background: rgba(107, 114, 128, 0.2);
+        .legend-icon {
+            font-size: 24px;
         }
 
         @media (max-width: 600px) {
@@ -426,7 +440,7 @@
             }
 
             .schedule-table {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .schedule-table th,
@@ -434,10 +448,17 @@
                 padding: 8px 4px;
             }
 
+            .checkbox-cell {
+                font-size: 24px;
+                padding: 10px 4px !important;
+            }
+
             .legend {
-                flex-direction: column;
-                align-items: center;
                 gap: 10px;
+            }
+
+            .legend-item {
+                font-size: 12px;
             }
         }
     </style>
@@ -452,12 +473,12 @@
         </div>
 
         <div class="mode-switcher">
-            <button class="mode-btn active" onclick="switchMode('mama')">👩‍⚕️ Для мамы</button>
-            <button class="mode-btn" onclick="switchMode('toshka')">🧙‍♂️ Для Тошки</button>
+            <button class="mode-btn" onclick="switchMode('mama')">👩‍⚕️ Для мамы</button>
+            <button class="mode-btn active" onclick="switchMode('toshka')">🧙‍♂️ Для Тошки</button>
         </div>
 
         <!-- СЕКЦИЯ ДЛЯ МАМЫ -->
-        <section id="mamaSection" class="section active">
+        <section id="mamaSection" class="section">
             <div class="card">
                 <h2 class="medicine-header">📋 Создать новый курс зелий</h2>
                 
@@ -492,12 +513,13 @@
             <div class="card" id="currentCourseDisplay" style="display: none;">
                 <h2 class="medicine-header">📌 Текущий курс</h2>
                 <div id="currentCourseInfo"></div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="deleteCourse()">🗑️ Удалить курс</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="editCourse()">✏️ Редактировать курс</button>
+                <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="deleteCourse()">🗑️ Удалить курс</button>
             </div>
         </section>
 
         <!-- СЕКЦИЯ ДЛЯ ТОШКИ -->
-        <section id="toshkaSection" class="section">
+        <section id="toshkaSection" class="section active">
             <div id="achievementContainer"></div>
             
             <div id="noCourseMessage" class="card no-course" style="display: none;">
@@ -510,16 +532,20 @@
 
                 <div class="legend">
                     <div class="legend-item">
-                        <div class="legend-box legend-taken"></div>
+                        <div class="legend-icon">✅</div>
                         <span>Выпил</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-box legend-missed"></div>
+                        <div class="legend-icon">❌</div>
                         <span>Пропустил</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-box legend-future"></div>
+                        <div class="legend-icon">⏳</div>
                         <span>Еще не время</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon">⬜</div>
+                        <span>Нажми чтобы отметить</span>
                     </div>
                 </div>
             </div>
@@ -534,6 +560,8 @@
         window.addEventListener('DOMContentLoaded', function() {
             loadCourse();
             document.getElementById('startDate').valueAsDate = new Date();
+            // Показываем раздел Тошки по умолчанию
+            displayForToshka();
         });
 
         // Переключение режимов
@@ -670,6 +698,16 @@
                 medicines.push(medicine);
             });
 
+            // Сохраняем данные о приемах если редактируем существующий курс
+            const existingCourse = JSON.parse(localStorage.getItem('toshkaCourse') || 'null');
+            if (existingCourse && existingCourse.medicines) {
+                medicines.forEach((med, index) => {
+                    if (existingCourse.medicines[index] && existingCourse.medicines[index].taken) {
+                        med.taken = existingCourse.medicines[index].taken;
+                    }
+                });
+            }
+
             const course = {
                 startDate: document.getElementById('startDate').value,
                 diagnosis: document.getElementById('diagnosis').value,
@@ -680,6 +718,12 @@
 
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
             alert('✅ Курс зелий сохранен!');
+            
+            // Очищаем форму
+            document.getElementById('courseForm').reset();
+            document.getElementById('medicinesList').innerHTML = '';
+            addMedicineForm();
+            
             loadCourse();
         }
 
@@ -720,6 +764,56 @@
             });
 
             info.innerHTML = html;
+        }
+
+        // Редактирование курса
+        function editCourse() {
+            const course = JSON.parse(localStorage.getItem('toshkaCourse'));
+            if (!course) return;
+
+            // Заполняем основные поля
+            document.getElementById('startDate').value = course.startDate;
+            document.getElementById('diagnosis').value = course.diagnosis;
+            document.getElementById('symptoms').value = course.symptoms;
+
+            // Очищаем список лекарств
+            document.getElementById('medicinesList').innerHTML = '';
+
+            // Добавляем лекарства из курса
+            course.medicines.forEach(medicine => {
+                addMedicineForm();
+                
+                const lastItem = document.querySelector('.medicine-item:last-child');
+                
+                // Заполняем официальные данные
+                lastItem.querySelector('.med-name').value = medicine.official.name;
+                lastItem.querySelector('.med-dose').value = medicine.official.dose;
+                lastItem.querySelector('.med-regime').value = medicine.official.regime;
+                lastItem.querySelector('.med-days').value = medicine.official.days;
+
+                // Заполняем данные для Тошки
+                lastItem.querySelector('.med-magic-name').value = medicine.forToshka.magicName;
+                lastItem.querySelector('.med-description').value = medicine.forToshka.description;
+
+                // Заполняем время приема
+                if (medicine.forToshka.times.morning) {
+                    lastItem.querySelector('.med-time-morning').checked = medicine.forToshka.times.morning.enabled;
+                    lastItem.querySelector('.med-time-morning-time').value = medicine.forToshka.times.morning.time;
+                }
+                if (medicine.forToshka.times.afternoon) {
+                    lastItem.querySelector('.med-time-afternoon').checked = medicine.forToshka.times.afternoon.enabled;
+                    lastItem.querySelector('.med-time-afternoon-time').value = medicine.forToshka.times.afternoon.time;
+                }
+                if (medicine.forToshka.times.evening) {
+                    lastItem.querySelector('.med-time-evening').checked = medicine.forToshka.times.evening.enabled;
+                    lastItem.querySelector('.med-time-evening-time').value = medicine.forToshka.times.evening.time;
+                }
+            });
+
+            // Скроллим к форме
+            document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+            
+            alert('Теперь можешь изменить данные и нажать "Сохранить курс лечения"');
         }
 
         // Удаление курса
@@ -808,26 +902,23 @@
 
                 activeTimes.forEach(time => {
                     const isTaken = medicine.taken[dayKey][time.name] === true;
-                    const isMissed = (isPast || isToday) && !isTaken;
+                    const isMissed = !isTaken && !isFuture;
                     
                     let cellClass = 'checkbox-cell';
                     if (isTaken) {
                         cellClass += ' taken';
-                    } else if (isMissed && !isFuture) {
+                    } else if (isMissed) {
                         cellClass += ' missed';
                     } else if (isFuture) {
                         cellClass += ' future';
+                    } else {
+                        cellClass += ' empty';
                     }
 
-                    const disabled = isFuture ? 'disabled' : '';
+                    const clickHandler = isFuture ? '' : `onclick="toggleTaken(${medIndex}, ${day}, '${time.name}')"`;
                     
                     tableHTML += `
-                        <td class="${cellClass}">
-                            <input type="checkbox" 
-                                   ${isTaken ? 'checked' : ''} 
-                                   ${disabled}
-                                   onchange="markTaken(${medIndex}, ${day}, '${time.name}', this.checked)">
-                        </td>
+                        <td class="${cellClass}" ${clickHandler}></td>
                     `;
                 });
 
@@ -846,15 +937,17 @@
             return card;
         }
 
-        // Отметка приема
-        function markTaken(medIndex, day, timeOfDay, checked) {
+        // Переключение приема (клик по ячейке)
+        function toggleTaken(medIndex, day, timeOfDay) {
             const course = JSON.parse(localStorage.getItem('toshkaCourse'));
             const dayKey = `day${day}`;
             
             if (!course.medicines[medIndex].taken) course.medicines[medIndex].taken = {};
             if (!course.medicines[medIndex].taken[dayKey]) course.medicines[medIndex].taken[dayKey] = {};
             
-            course.medicines[medIndex].taken[dayKey][timeOfDay] = checked;
+            // Переключаем состояние
+            const currentState = course.medicines[medIndex].taken[dayKey][timeOfDay];
+            course.medicines[medIndex].taken[dayKey][timeOfDay] = !currentState;
             
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
             
@@ -947,10 +1040,12 @@
             return `${day}.${month}`;
         }
 
-        // Автодобавление первого лекарства
-        if (document.getElementById('medicinesList').children.length === 0) {
-            addMedicineForm();
-        }
+        // Автодобавление первого лекарства при загрузке
+        window.addEventListener('load', function() {
+            if (document.getElementById('medicinesList').children.length === 0) {
+                addMedicineForm();
+            }
+        });
     </script>
 </body>
 </html>
