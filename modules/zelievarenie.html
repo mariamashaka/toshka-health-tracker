@@ -484,8 +484,16 @@
                 <h2 class="medicine-header">📌 Текущий курс</h2>
                 <div id="currentCourseInfo"></div>
                 <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="showEditForm()">✏️ Редактировать курс</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="archiveCourse()">📦 Завершить и отправить в архив</button>
                 <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="showNewCourseForm()">➕ Создать новый курс</button>
                 <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="deleteCourse()">🗑️ Удалить курс</button>
+            </div>
+
+            <!-- Архив курсов -->
+            <div class="card" id="archiveCard" style="display: none;">
+                <h2 class="medicine-header">📦 Архив курсов</h2>
+                <div id="archiveList"></div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="hideArchive()">← Назад</button>
             </div>
 
             <!-- Форма создания/редактирования -->
@@ -799,10 +807,7 @@
         function displayCurrentCourse() {
             if (!currentCourse) return;
 
-            const display = document.getElementById('currentCourseDisplay');
             const info = document.getElementById('currentCourseInfo');
-            
-            display.style.display = 'block';
 
             let html = `
                 <p style="margin-bottom: 10px;"><strong>Дата начала:</strong> ${formatDate(currentCourse.startDate)}</p>
@@ -813,11 +818,11 @@
 
             currentCourse.medicines.forEach((med, index) => {
                 html += `
-                    <div class="medicine-item">
-                        <div class="medicine-name">${index + 1}. ${med.official.name}</div>
-                        <div class="medicine-details">Дозировка: ${med.official.dose}, ${med.official.regime}</div>
-                        <div class="medicine-details">Курс: ${med.official.days} дней</div>
-                        <div class="medicine-details" style="margin-top: 5px; color: #ffd700;">Для Тошки: "${med.forToshka.magicName}"</div>
+                    <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="font-weight: bold; color: #ffd700; margin-bottom: 5px;">${index + 1}. ${med.official.name}</div>
+                        <div style="font-size: 13px; color: #c9a961; margin-bottom: 3px;">Дозировка: ${med.official.dose}, ${med.official.regime}</div>
+                        <div style="font-size: 13px; color: #c9a961; margin-bottom: 3px;">Курс: ${med.official.days} дней</div>
+                        <div style="font-size: 13px; margin-top: 5px; color: #ffd700;">Для Тошки: "${med.forToshka.magicName}"</div>
                     </div>
                 `;
             });
@@ -870,7 +875,117 @@
             });
         }
 
-        // Удаление курса
+        // Архивирование курса
+        function archiveCourse() {
+            if (!confirm('Завершить курс и отправить в архив? Текущий курс станет недоступен для редактирования.')) {
+                return;
+            }
+
+            const course = JSON.parse(localStorage.getItem('toshkaCourse'));
+            if (!course) return;
+
+            // Добавляем дату архивирования
+            course.archivedAt = new Date().toISOString();
+
+            // Получаем архив
+            let archive = JSON.parse(localStorage.getItem('toshkaArchive') || '[]');
+            archive.push(course);
+            localStorage.setItem('toshkaArchive', JSON.stringify(archive));
+
+            // Удаляем текущий курс
+            localStorage.removeItem('toshkaCourse');
+            currentCourse = null;
+
+            alert('✅ Курс отправлен в архив!');
+            clearForm();
+            showCourseForm();
+        }
+
+        // Показать архив
+        function showArchive() {
+            document.getElementById('currentCourseCard').style.display = 'none';
+            document.getElementById('courseFormCard').style.display = 'none';
+            document.getElementById('archiveCard').style.display = 'block';
+            displayArchive();
+        }
+
+        // Скрыть архив
+        function hideArchive() {
+            document.getElementById('archiveCard').style.display = 'none';
+            if (currentCourse) {
+                showCurrentCourse();
+            } else {
+                showCourseForm();
+            }
+        }
+
+        // Отображение архива
+        function displayArchive() {
+            const archive = JSON.parse(localStorage.getItem('toshkaArchive') || '[]');
+            const container = document.getElementById('archiveList');
+
+            if (archive.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #c9a961; padding: 20px;">Архив пуст</p>';
+                return;
+            }
+
+            let html = '';
+            archive.reverse().forEach((course, index) => {
+                const actualIndex = archive.length - 1 - index;
+                
+                // Считаем статистику
+                let totalTaken = 0;
+                let totalMissed = 0;
+                course.medicines.forEach(med => {
+                    for (let day = 1; day <= med.official.days; day++) {
+                        const dayKey = `day${day}`;
+                        ['morning', 'afternoon', 'evening'].forEach(time => {
+                            if (med.forToshka.times[time].enabled) {
+                                if (med.taken && med.taken[dayKey] && med.taken[dayKey][time]) {
+                                    totalTaken++;
+                                } else {
+                                    totalMissed++;
+                                }
+                            }
+                        });
+                    }
+                });
+
+                html += `
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                        <div style="font-weight: bold; color: #ffd700; margin-bottom: 8px;">
+                            ${course.diagnosis} (${formatDate(course.startDate)})
+                        </div>
+                        <div style="font-size: 13px; color: #c9a961; margin-bottom: 5px;">
+                            Симптомы: ${course.symptoms}
+                        </div>
+                        <div style="font-size: 13px; color: #c9a961; margin-bottom: 5px;">
+                            Лекарств: ${course.medicines.length}, Дней: ${course.maxDays}
+                        </div>
+                        <div style="font-size: 14px; color: ${totalMissed === 0 ? '#10b981' : '#ffd700'}; margin-top: 8px;">
+                            ✅ Выпито: ${totalTaken} | ❌ Пропущено: ${totalMissed}
+                        </div>
+                        <button class="btn btn-danger" style="width: 100%; margin-top: 10px; padding: 8px;" onclick="deleteFromArchive(${actualIndex})">
+                            🗑️ Удалить из архива
+                        </button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Удаление из архива
+        function deleteFromArchive(index) {
+            if (!confirm('Удалить этот курс из архива?')) {
+                return;
+            }
+
+            let archive = JSON.parse(localStorage.getItem('toshkaArchive') || '[]');
+            archive.splice(index, 1);
+            localStorage.setItem('toshkaArchive', JSON.stringify(archive));
+            displayArchive();
+        }
         function deleteCourse() {
             if (confirm('Удалить текущий курс лечения? Все отметки будут потеряны!')) {
                 localStorage.removeItem('toshkaCourse');
@@ -939,13 +1054,13 @@
             for (let day = 1; day <= medicine.official.days; day++) {
                 const dayDate = new Date(startDate);
                 dayDate.setDate(dayDate.getDate() + (day - 1));
+                dayDate.setHours(0, 0, 0, 0);
                 
                 const dayKey = `day${day}`;
                 if (!medicine.taken) medicine.taken = {};
                 if (!medicine.taken[dayKey]) medicine.taken[dayKey] = {};
 
-                const isPast = dayDate < today;
-                const isToday = dayDate.getTime() === today.getTime();
+                // ИСПРАВЛЕНО: сегодня и прошлое доступны
                 const isFuture = dayDate > today;
 
                 tableHTML += `
@@ -1005,7 +1120,8 @@
             
             localStorage.setItem('toshkaCourse', JSON.stringify(course));
             
-            setTimeout(() => displayForToshka(), 100);
+            // ИСПРАВЛЕНО: полная перерисовка с достижениями
+            displayForToshka();
         }
 
         // Проверка достижений
