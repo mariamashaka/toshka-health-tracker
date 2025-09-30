@@ -479,6 +479,13 @@
 
         <!-- СЕКЦИЯ ДЛЯ МАМЫ -->
         <section id="mamaSection" class="section">
+            <!-- Кнопка архива -->
+            <div style="text-align: right; margin-bottom: 15px;">
+                <button class="btn" style="background: rgba(212, 175, 55, 0.2); color: #d4af37; border: 2px solid #d4af37;" onclick="showArchive()">
+                    📦 Архив курсов
+                </button>
+            </div>
+
             <!-- Карточка текущего курса -->
             <div class="card" id="currentCourseCard" style="display: none;">
                 <h2 class="medicine-header">📌 Текущий курс</h2>
@@ -1209,9 +1216,9 @@
             
             if (allDaysPassed) {
                 if (totalMissed === 0) {
-                    showAchievement('⭐', 'Магистр зельеварения! Курс завершен идеально!');
+                    showAchievement('⭐', 'Магистр зельеварения! Курс завершен идеально! 🎉<br><small>Можешь отправить курс в архив</small>');
                 } else {
-                    showAchievement('📋', `Курс завершен. Выпито: ${totalTaken}, пропущено: ${totalMissed}`, true);
+                    showAchievement('📋', `Курс завершен. Выпито: ${totalTaken}, пропущено: ${totalMissed}<br><small>Можешь отправить курс в архив</small>`, true);
                 }
             }
         }
