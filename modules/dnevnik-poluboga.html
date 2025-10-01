@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔱 Дневник Полубога</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #f0f9ff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #bfdbfe;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .mode-switcher {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #fff;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #fff;
+            color: #1e3a8a;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mode-btn.active:hover {
+            background: #fff;
+        }
+
+        .card {
+            background: rgba(30, 58, 138, 0.8);
+            border: 2px solid #60a5fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #60a5fa;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e3a8a;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #93c5fd;
+            background: #fff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .checkbox-label:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #60a5fa;
+            color: #1e3a8a;
+        }
+
+        .btn-primary:hover {
+            background: #93c5fd;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .support-message {
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s;
+            border: 2px solid #93c5fd;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .support-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .support-text {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .daily-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .status-btn {
+            padding: 20px;
+            border: 2px solid #60a5fa;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .status-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .status-btn.selected {
+            background: #60a5fa;
+            border-color: #93c5fd;
+        }
+
+        .status-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .status-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .medicine-counter {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .medicine-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .counter-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .counter-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: #60a5fa;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .counter-btn:hover {
+            background: #93c5fd;
+        }
+
+        .counter-value {
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #60a5fa;
+        }
+
+        .history-date {
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 8px;
+        }
+
+        .history-detail {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .severity-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .severity-light {
+            background: #10b981;
+            color: white;
+        }
+
+        .severity-medium {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .severity-heavy {
+            background: #dc2626;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #93c5fd;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #bfdbfe;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #bfdbfe;
+        }
+
+        .no-data-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .daily-status {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-btn">← Назад к профилю</a>
+
+        <div class="header">
+            <div class="title">🔱 ДНЕВНИК ПОЛУБОГА 🔱</div>
+            <div class="subtitle">Лагерь Полукровок - Журнал Тошки</div>
+        </div>
+
+        <div class="mode-switcher">
+            <button class="mode-btn" onclick="switchMode('mama')">👩‍⚕️ Для мамы</button>
+            <button class="mode-btn active" onclick="switchMode('toshka')">🧙‍♂️ Для Тошки</button>
+        </div>
+
+        <!-- СЕКЦИЯ ДЛЯ ТОШКИ -->
+        <section id="toshkaSection" class="section active">
+            <div id="supportMessageContainer"></div>
+
+            <!-- Ежедневная отметка -->
+            <div class="card">
+                <div class="section-header">
+                    <span>😮‍💨</span>
+                    <span>Как дышится сегодня?</span>
+                </div>
+
+                <div class="daily-status">
+                    <div class="status-btn" onclick="setDailyStatus('excellent')">
+                        <div class="status-icon">😊</div>
+                        <div class="status-label">Отлично!</div>
+                    </div>
+                    <div class="status-btn" onclick="setDailyStatus('good')">
+                        <div class="status-icon">🙂</div>
+                        <div class="status-label">Нормально</div>
+                    </div>
+                    <div class="status-btn" onclick="setDailyStatus('difficult')">
+                        <div class="status-icon">😐</div>
+                        <div class="status-label">Затруднённо</div>
+                    </div>
+                    <div class="status-btn" onclick="setDailyStatus('bad')">
+                        <div class="status-icon">😟</div>
+                        <div class="status-label">Плохо</div>
+                    </div>
+                </div>
+
+                <div id="dailyStatusMessage" style="text-align: center; margin-top: 15px; font-size: 14px;"></div>
+            </div>
+
+            <!-- Кнопка записи приступа -->
+            <div class="card" style="text-align: center;">
+                <button class="btn btn-danger" style="width: 100%; padding: 20px; font-size: 18px;" onclick="showAttackForm()">
+                    ⚠️ НАЧАЛСЯ ПРИСТУП - ЗАПИСАТЬ БИТВУ
+                </button>
+            </div>
+
+            <!-- Форма записи приступа -->
+            <div class="card" id="attackFormCard" style="display: none;">
+                <div class="section-header">
+                    <span>⚔️</span>
+                    <span>Запись битвы с монстром</span>
+                </div>
+
+                <form id="attackForm" onsubmit="saveAttack(event)">
+                    <div class="form-group">
+                        <label class="form-label">📅 Дата и время:</label>
+                        <input type="datetime-local" id="attackDateTime" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🌪️ Что разбудило монстра?</label>
+                        <div class="checkbox-group" id="triggersList"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">😤 Симптомы битвы:</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptom" value="Одышка">
+                                <span>💨 Одышка (тяжело дышать)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptom" value="Хрипы">
+                                <span>🎵 Хрипы (свист при дыхании)</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptom" value="Кашель">
+                                <span>😷 Кашель</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="symptom" value="Тяжесть в груди">
+                                <span>🫁 Тяжесть в груди</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📊 Насколько сильный монстр?</label>
+                        <select id="severity" class="form-select" required>
+                            <option value="">Выбери...</option>
+                            <option value="light">🟢 Маленький (легкий приступ)</option>
+                            <option value="medium">🟡 Средний</option>
+                            <option value="heavy">🔴 Большой (тяжелый приступ)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">⚔️ Какое оружие использовал:</label>
+                        
+                        <div class="medicine-counter">
+                            <div class="medicine-name">💨 Сальбутамол (быстрое оружие):</div>
+                            <div class="counter-controls">
+                                <button type="button" class="counter-btn" onclick="changeMedicineCount('salbutamol', -1)">−</button>
+                                <div class="counter-value" id="salbutamolCount">0</div>
+                                <button type="button" class="counter-btn" onclick="changeMedicineCount('salbutamol', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <div class="medicine-counter">
+                            <div class="medicine-name">💨 Будесонид (базовая защита):</div>
+                            <div class="counter-controls">
+                                <button type="button" class="counter-btn" onclick="changeMedicineCount('budesonide', -1)">−</button>
+                                <div class="counter-value" id="budesonideCount">0</div>
+                                <button type="button" class="counter-btn" onclick="changeMedicineCount('budesonide', 1)">+</button>
+                            </div>
+                        </div>
+
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="prednisolone">
+                            <span>💊 Преднизолон (мощное зелье)</span>
+                        </label>
+
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="hydrocortisone">
+                            <span>💉 Гидрокортизон (укол в больнице)</span>
+                        </label>
+
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="form-label">Другое оружие:</label>
+                            <input type="text" id="otherMedicine" class="form-input" placeholder="Если использовал что-то еще">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">⏰ Через сколько минут стало легче?</label>
+                        <input type="number" id="recoveryTime" class="form-input" placeholder="Например: 15" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">😌 Насколько легче стало?</label>
+                        <select id="improvement" class="form-select">
+                            <option value="">Выбери...</option>
+                            <option value="fully">✅ Полностью прошло</option>
+                            <option value="much">😊 Намного легче</option>
+                            <option value="little">🙂 Немного легче</option>
+                            <option value="none">😐 Не помогло</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">💬 Комментарии (что еще важно):</label>
+                        <textarea id="comments" class="form-textarea" placeholder="Опиши битву подробнее, если хочешь..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">💾 Сохранить запись о битве</button>
+                    <button type="button" class="btn" style="width: 100%; margin-top: 10px; background: #6b7280; color: white;" onclick="cancelAttackForm()">Отмена</button>
+                </form>
+            </div>
+
+            <!-- История последних записей -->
+            <div class="card" id="recentHistory">
+                <div class="section-header">
+                    <span>📜</span>
+                    <span>Последние битвы</span>
+                </div>
+                <div id="recentHistoryList"></div>
+            </div>
+        </section>
+
+        <!-- СЕКЦИЯ ДЛЯ МАМЫ -->
+        <section id="mamaSection" class="section">
+            <!-- Статистика -->
+            <div class="card">
+                <div class="section-header">
+                    <span>📊</span>
+                    <span>Статистика</span>
+                </div>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+
+            <!-- История всех записей -->
+            <div class="card">
+                <div class="section-header">
+                    <span>📖</span>
+                    <span>Все записи</span>
+                </div>
+                <div id="allHistoryList"></div>
+                
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="downloadReport()">
+                    📥 Скачать отчет для врача
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let medicineCounts = {
+            salbutamol: 0,
+            budesonide: 0
+        };
+
+        // Загрузка при старте
+        window.addEventListener('DOMContentLoaded', function() {
+            loadTriggers();
+            loadDailyStatus();
+            loadRecentHistory();
+            document.getElementById('attackDateTime').value = getCurrentDateTime();
+        });
+
+        // Текущая дата и время
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Переключение режимов
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            
+            if (mode === 'mama') {
+                document.getElementById('mamaSection').classList.add('active');
+                displayStats();
+                displayAllHistory();
+            } else {
+                document.getElementById('toshkaSection').classList.add('active');
+                loadRecentHistory();
+            }
+        }
+
+        // Загрузка триггеров из профиля
+        function loadTriggers() {
+            const triggers = JSON.parse(localStorage.getItem('toshkaTriggers') || '["❄️ Холод", "👃 Резкие запахи (вазелин, масла, парфюм)"]');
+            const container = document.getElementById('triggersList');
+            
+            container.innerHTML = triggers.map((trigger, index) => `
+                <label class="checkbox-label">
+                    <input type="checkbox" name="trigger" value="${trigger}">
+                    <span>${trigger}</span>
+                </label>
+            `).join('') + `
+                <label class="checkbox-label">
+                    <input type="checkbox" name="trigger" value="Не знаю">
+                    <span>❓ Не знаю</span>
+                </label>
+            `;
+        }
+
+        // Установка ежедневного статуса
+        function setDailyStatus(status) {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyRecords = JSON.parse(localStorage.getItem('toshkaDailyStatus') || '{}');
+            
+            dailyRecords[today] = {
+                status: status,
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('toshkaDailyStatus', JSON.stringify(dailyRecords));
+            
+            // Показать сообщение поддержки
+            showSupportMessage(status);
+            
+            // Обновить отображение
+            loadDailyStatus();
+        }
+
+        // Загрузка ежедневного статуса
+        function loadDailyStatus() {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyRecords = JSON.parse(localStorage.getItem('toshkaDailyStatus') || '{}');
+            const todayStatus = dailyRecords[today];
+            
+            // Сбросить все кнопки
+            document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('selected'));
+            
+            if (todayStatus) {
+                // Подсветить выбранную кнопку
+                const buttons = document.querySelectorAll('.status-btn');
+                const statusMap = ['excellent', 'good', 'difficult', 'bad'];
+                const index = statusMap.indexOf(todayStatus.status);
+                if (index !== -1 && buttons[index]) {
+                    buttons[index].classList.add('selected');
+                }
+                
+                document.getElementById('dailyStatusMessage').textContent = '✅ Отмечено на сегодня';
+            } else {
+                document.getElementById('dailyStatusMessage').textContent = '';
+            }
+        }
+
+        // Показать сообщение поддержки
+        function showSupportMessage(status) {
+            const messages = {
+                excellent: ['🌊 Море спокойно! Посейдон с тобой!', '⚡ Дыши свободно, сын Посейдона!', '🔱 Сила Олимпа течёт в тебе!'],
+                good: ['💪 Хорошо держишься! Олимп гордится!', '🌊 Море поддерживает тебя!', '⚡ Так держать, полубог!'],
+                difficult: ['🗡️ Держись! Боги Олимпа с тобой!', '🛡️ Посейдон поможет! Дыши глубже!', '💪 Полубоги не сдаются! Дерись!'],
+                bad: ['🔥 Посейдон не оставит тебя! Держись!', '🏛️ Олимп на твоей стороне! Борись!', '💙 Дыши! Боги с тобой! Ты сильный!']
+            };
+            
+            const messageArray = messages[status] || messages.good;
+            const message = messageArray[Math.floor(Math.random() * messageArray.length)];
+            
+            const container = document.getElementById('supportMessageContainer');
+            const icon = status === 'excellent' || status === 'good' ? '🔱' : '⚔️';
+            
+            container.innerHTML = `
+                <div class="support-message">
+                    <div class="support-icon">${icon}</div>
+                    <div class="support-text">${message}</div>
+                </div>
+            `;
+        }
+
+        // Показать форму приступа
+        function showAttackForm() {
+            document.getElementById('attackFormCard').style.display = 'block';
+            document.getElementById('attackFormCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Отмена формы приступа
+        function cancelAttackForm() {
+            document.getElementById('attackFormCard').style.display = 'none';
+            document.getElementById('attackForm').reset();
+            medicineCounts = { salbutamol: 0, budesonide: 0 };
+            updateMedicineCounts();
+        }
+
+        // Изменение счетчика лекарств
+        function changeMedicineCount(medicine, delta) {
+            medicineCounts[medicine] = Math.max(0, medicineCounts[medicine] + delta);
+            updateMedicineCounts();
+        }
+
+        // Обновление отображения счетчиков
+        function updateMedicineCounts() {
+            document.getElementById('salbutamolCount').textContent = medicineCounts.salbutamol;
+            document.getElementById('budesonideCount').textContent = medicineCounts.budesonide;
+        }
+
+        // Сохранение приступа
+        function saveAttack(event) {
+            event.preventDefault();
+            
+            const triggers = Array.from(document.querySelectorAll('input[name="trigger"]:checked')).map(cb => cb.value);
+            const symptoms = Array.from(document.querySelectorAll('input[name="symptom"]:checked')).map(cb => cb.value);
+            
+            const attack = {
+                dateTime: document.getElementById('attackDateTime').value,
+                triggers: triggers,
+                symptoms: symptoms,
+                severity: document.getElementById('severity').value,
+                medicines: {
+                    salbutamol: medicineCounts.salbutamol,
+                    budesonide: medicineCounts.budesonide,
+                    prednisolone: document.getElementById('prednisolone').checked,
+                    hydrocortisone: document.getElementById('hydrocortisone').checked,
+                    other: document.getElementById('otherMedicine').value
+                },
+                recoveryTime: document.getElementById('recoveryTime').value,
+                improvement: document.getElementById('improvement').value,
+                comments: document.getElementById('comments').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Сохранить в историю
+            const history = JSON.parse(localStorage.getItem('toshkaAsthmaHistory') || '[]');
+            history.push(attack);
+            localStorage.setItem('toshkaAsthmaHistory', JSON.stringify(history));
+            
+            // Показать поддержку
+            const severity = attack.severity;
+            if (severity === 'light') {
+                showSupportAfterAttack('🗡️ Ты справился! Настоящий герой Олимпа!');
+            } else if (severity === 'medium') {
+                showSupportAfterAttack('🛡️ Использовал оружие вовремя - это мудро!');
+            } else {
+                showSupportAfterAttack('🔥 Ты сражался как настоящий полубог! Гордимся тобой!');
+            }
+            
+            alert('✅ Битва записана в дневник!');
+            cancelAttackForm();
+            loadRecentHistory();
+        }
+
+        // Поддержка после приступа
+        function showSupportAfterAttack(message) {
+            const container = document.getElementById('supportMessageContainer');
+            container.innerHTML = `
+                <div class="support-message">
+                    <div class="support-icon">🏛️</div>
+                    <div class="support-text">${message}<br><small>📜 Запись добавлена в журнал полубога</small></div>
+                </div>
+            `;
+        }
+
+        // Загрузка последних записей
+        function loadRecentHistory() {
+            const history = JSON.parse(localStorage.getItem('toshkaAsthmaHistory') || '[]');
+            const container = document.getElementById('recentHistoryList');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-data"><div class="no-data-icon">📜</div><p>Пока нет записей о битвах</p></div>';
+                return;
+            }
+            
+            const recent = history.slice(-5).reverse();
+            container.innerHTML = recent.map(attack => formatHistoryItem(attack)).join('');
+        }
+
+        // Форматирование записи истории
+        function formatHistoryItem(attack) {
+            const date = new Date(attack.dateTime);
+            const dateStr = date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
+            
+            const severityClass = attack.severity === 'light' ? 'severity-light' : attack.severity === 'medium' ? 'severity-medium' : 'severity-heavy';
+            const severityText = attack.severity === 'light' ? 'Легкий' : attack.severity === 'medium' ? 'Средний' : 'Тяжелый';
+            
+            let medicinesUsed = [];
+            if (attack.medicines.salbutamol > 0) medicinesUsed.push(`Сальбутамол ${attack.medicines.salbutamol}×`);
+            if (attack.medicines.budesonide > 0) medicinesUsed.push(`Будесонид ${attack.medicines.budesonide}×`);
+            if (attack.medicines.prednisolone) medicinesUsed.push('Преднизолон');
+            if (attack.medicines.hydrocortisone) medicinesUsed.push('Гидрокортизон');
+            if (attack.medicines.other) medicinesUsed.push(attack.medicines.other);
+            
+            return `
+                <div class="history-item">
+                    <div class="history-date">${dateStr} <span class="severity-indicator ${severityClass}">${severityText}</span></div>
+                    <div class="history-detail"><strong>Триггеры:</strong> ${attack.triggers.join(', ') || 'Не указаны'}</div>
+                    <div class="history-detail"><strong>Симптомы:</strong> ${attack.symptoms.join(', ') || 'Не указаны'}</div>
+                    <div class="history-detail"><strong>Лечение:</strong> ${medicinesUsed.join(', ') || 'Не указано'}</div>
+                    ${attack.recoveryTime ? `<div class="history-detail"><strong>Стало легче через:</strong> ${attack.recoveryTime} мин</div>` : ''}
+                    ${attack.comments ? `<div class="history-detail"><strong>Комментарии:</strong> ${attack.comments}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // Статистика
+        function displayStats() {
+            const history = JSON.parse(localStorage.getItem('toshkaAsthmaHistory') || '[]');
+            const container = document.getElementById('statsGrid');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-data" style="grid-column: 1/-1;"><p>Пока нет данных для статистики</p></div>';
+                return;
+            }
+            
+            const totalAttacks = history.length;
+            const lightAttacks = history.filter(a => a.severity === 'light').length;
+            const mediumAttacks = history.filter(a => a.severity === 'medium').length;
+            const heavyAttacks = history.filter(a => a.severity === 'heavy').length;
+            
+            // Самые частые триггеры
+            const triggerCounts = {};
+            history.forEach(attack => {
+                attack.triggers.forEach(trigger => {
+                    triggerCounts[trigger] = (triggerCounts[trigger] || 0) + 1;
+                });
+            });
+            const topTrigger = Object.keys(triggerCounts).sort((a, b) => triggerCounts[b] - triggerCounts[a])[0] || 'Нет данных';
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalAttacks}</div>
+                    <div class="stat-label">Всего приступов</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${lightAttacks}</div>
+                    <div class="stat-label">Легких</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${mediumAttacks}</div>
+                    <div class="stat-label">Средних</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${heavyAttacks}</div>
+                    <div class="stat-label">Тяжелых</div>
+                </div>
+                <div class="stat-card" style="grid-column: 1/-1;">
+                    <div class="stat-label">Самый частый триггер</div>
+                    <div class="stat-value" style="font-size: 18px; margin-top: 10px;">${topTrigger}</div>
+                </div>
+            `;
+        }
+
+        // Вся история
+        function displayAllHistory() {
+            const history = JSON.parse(localStorage.getItem('toshkaAsthmaHistory') || '[]');
+            const container = document.getElementById('allHistoryList');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-data"><div class="no-data-icon">📖</div><p>Пока нет записей</p></div>';
+                return;
+            }
+            
+            const reversed = [...history].reverse();
+            container.innerHTML = reversed.map(attack => formatHistoryItem(attack)).join('');
+        }
+
+        // Скачать отчет
+        function downloadReport() {
+            const history = JSON.parse(localStorage.getItem('toshkaAsthmaHistory') || '[]');
+            const dailyStatus = JSON.parse(localStorage.getItem('toshkaDailyStatus') || '{}');
+            
+            if (history.length === 0 && Object.keys(dailyStatus).length === 0) {
+                alert('Нет данных для отчета');
+                return;
+            }
+            
+            let report = '=== ОТЧЕТ ПО АСТМЕ - ТОШКА ===\n\n';
+            report += `Дата создания отчета: ${new Date().toLocaleString('ru-RU')}\n\n`;
+            
+            // Статистика
+            report += '--- СТАТИСТИКА ---\n';
+            report += `Всего приступов: ${history.length}\n`;
+            report += `Легких: ${history.filter(a => a.severity === 'light').length}\n`;
+            report += `Средних: ${history.filter(a => a.severity === 'medium').length}\n`;
+            report += `Тяжелых: ${history.filter(a => a.severity === 'heavy').length}\n\n`;
+            
+            // История приступов
+            report += '--- ИСТОРИЯ ПРИСТУПОВ ---\n\n';
+            history.reverse().forEach((attack, index) => {
+                const date = new Date(attack.dateTime);
+                report += `Приступ ${history.length - index}:\n`;
+                report += `Дата: ${date.toLocaleString('ru-RU')}\n`;
+                report += `Тяжесть: ${attack.severity === 'light' ? 'Легкий' : attack.severity === 'medium' ? 'Средний' : 'Тяжелый'}\n`;
+                report += `Триггеры: ${attack.triggers.join(', ')}\n`;
+                report += `Симптомы: ${attack.symptoms.join(', ')}\n`;
+                report += `Лечение:\n`;
+                if (attack.medicines.salbutamol > 0) report += `  - Сальбутамол: ${attack.medicines.salbutamol} раз\n`;
+                if (attack.medicines.budesonide > 0) report += `  - Будесонид: ${attack.medicines.budesonide} раз\n`;
+                if (attack.medicines.prednisolone) report += `  - Преднизолон: Да\n`;
+                if (attack.medicines.hydrocortisone) report += `  - Гидрокортизон: Да\n`;
+                if (attack.medicines.other) report += `  - Другое: ${attack.medicines.other}\n`;
+                if (attack.recoveryTime) report += `Стало легче через: ${attack.recoveryTime} минут\n`;
+                if (attack.improvement) {
+                    const improvementText = {
+                        'fully': 'Полностью прошло',
+                        'much': 'Намного легче',
+                        'little': 'Немного легче',
+                        'none': 'Не помогло'
+                    };
+                    report += `Результат: ${improvementText[attack.improvement]}\n`;
+                }
+                if (attack.comments) report += `Комментарии: ${attack.comments}\n`;
+                report += '\n';
+            });
+            
+            // Скачать файл
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `asthma-report-toshka-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
