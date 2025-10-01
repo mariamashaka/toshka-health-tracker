@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💤 Дневник Сна</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc2626 0%, #f59e0b 50%, #fbbf24 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #fef3c7;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .mode-switcher {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #fff;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #fff;
+            color: #dc2626;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .mode-btn.active:hover {
+            background: #fff;
+        }
+
+        .card {
+            background: rgba(220, 38, 38, 0.8);
+            border: 3px solid #fbbf24;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            font-size: 22px;
+            font-weight: bold;
+            color: #fef3c7;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fef3c7;
+            font-size: 16px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 3px solid #fbbf24;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #dc2626;
+            font-size: 16px;
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+            font-weight: bold;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #fef3c7;
+            background: #fff;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .checkbox-label:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #fbbf24;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-family: 'Comic Sans MS', sans-serif;
+        }
+
+        .btn-primary {
+            background: #fbbf24;
+            color: #dc2626;
+            border: 3px solid #fff;
+        }
+
+        .btn-primary:hover {
+            background: #fef3c7;
+            transform: scale(1.05);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+            border: 3px solid #fff;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .support-message {
+            background: linear-gradient(135deg, #fbbf24, #fef3c7);
+            color: #dc2626;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: bounce 0.6s;
+            border: 3px solid #fff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .support-icon {
+            font-size: 56px;
+            margin-bottom: 10px;
+        }
+
+        .support-text {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .sleep-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #fbbf24;
+        }
+
+        .sleep-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .sleep-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: #fef3c7;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid #fbbf24;
+        }
+
+        .history-date {
+            font-weight: bold;
+            color: #fef3c7;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .history-detail {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .good-sleep {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .bad-sleep {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #fbbf24;
+        }
+
+        .stat-card-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #fef3c7;
+            margin-bottom: 5px;
+        }
+
+        .stat-card-label {
+            font-size: 14px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #fef3c7;
+        }
+
+        .no-data-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .checkbox-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-btn">← Назад к профилю</a>
+
+        <div class="header">
+            <div class="title">💤 ТРА-ЛЯ-ЛЯ! ДНЕВНИК СНА! 💤</div>
+            <div class="subtitle">Капитан Подштанник следит за твоим сном!</div>
+        </div>
+
+        <div class="mode-switcher">
+            <button class="mode-btn" onclick="switchMode('mama')">👩‍⚕️ Для мамы</button>
+            <button class="mode-btn active" onclick="switchMode('toshka')">🦸 Для Тошки</button>
+        </div>
+
+        <!-- СЕКЦИЯ ДЛЯ ТОШКИ -->
+        <section id="toshkaSection" class="section active">
+            <div id="supportMessageContainer"></div>
+
+            <!-- Информация о сегодня -->
+            <div class="card" id="todaySleepCard" style="display: none;">
+                <div class="section-header">
+                    <span>📊</span>
+                    <span>Сон сегодня</span>
+                </div>
+                <div id="todaySleepInfo"></div>
+            </div>
+
+            <!-- Форма записи сна -->
+            <div class="card">
+                <div class="section-header">
+                    <span>🛏️</span>
+                    <span>Записать сон</span>
+                </div>
+
+                <form id="sleepForm" onsubmit="saveSleep(event)">
+                    <div class="form-group">
+                        <label class="form-label">📅 За какую дату записываешь?</label>
+                        <input type="date" id="sleepDate" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🌙 Во сколько лег спать?</label>
+                        <input type="time" id="bedTime" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">☀️ Во сколько проснулся?</label>
+                        <input type="time" id="wakeTime" class="form-input" value="05:50" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📱 Был с телефоном перед сном?</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="radio" name="phone" value="yes" required>
+                                <span>Да 😔</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="radio" name="phone" value="no">
+                                <span>Нет 😊</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">😴 Как себя чувствовал утром?</label>
+                        <select id="feeling" class="form-select" required>
+                            <option value="">Выбери...</option>
+                            <option value="excellent">😊 Отлично! Бодрый и полон сил!</option>
+                            <option value="good">🙂 Хорошо, нормально</option>
+                            <option value="tired">😐 Уставший, хотелось ещё поспать</option>
+                            <option value="bad">😟 Плохо, очень устал</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">💾 СОХРАНИТЬ!</button>
+                </form>
+            </div>
+
+            <!-- Последние записи -->
+            <div class="card">
+                <div class="section-header">
+                    <span>📖</span>
+                    <span>Последние ночи</span>
+                </div>
+                <div id="recentSleepList"></div>
+            </div>
+        </section>
+
+        <!-- СЕКЦИЯ ДЛЯ МАМЫ -->
+        <section id="mamaSection" class="section">
+            <!-- Статистика -->
+            <div class="card">
+                <div class="section-header">
+                    <span>📊</span>
+                    <span>Статистика сна</span>
+                </div>
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+
+            <!-- Вся история -->
+            <div class="card">
+                <div class="section-header">
+                    <span>📚</span>
+                    <span>Все записи</span>
+                </div>
+                <div id="allSleepList"></div>
+                
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="downloadReport()">
+                    📥 Скачать отчет
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Загрузка при старте
+        window.addEventListener('DOMContentLoaded', function() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            document.getElementById('sleepDate').valueAsDate = yesterday;
+            
+            loadTodaySleep();
+            loadRecentSleep();
+        });
+
+        // Переключение режимов
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            
+            if (mode === 'mama') {
+                document.getElementById('mamaSection').classList.add('active');
+                displayStats();
+                displayAllSleep();
+            } else {
+                document.getElementById('toshkaSection').classList.add('active');
+                loadTodaySleep();
+                loadRecentSleep();
+            }
+        }
+
+        // Расчет часов сна
+        function calculateSleepHours(bedTime, wakeTime) {
+            const [bedH, bedM] = bedTime.split(':').map(Number);
+            const [wakeH, wakeM] = wakeTime.split(':').map(Number);
+            
+            let bedMinutes = bedH * 60 + bedM;
+            let wakeMinutes = wakeH * 60 + wakeM;
+            
+            // Если время сна позднее полуночи, добавляем 24 часа
+            if (wakeMinutes < bedMinutes) {
+                wakeMinutes += 24 * 60;
+            }
+            
+            const totalMinutes = wakeMinutes - bedMinutes;
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            return { hours, minutes, total: totalMinutes / 60 };
+        }
+
+        // Сохранение сна
+        function saveSleep(event) {
+            event.preventDefault();
+            
+            const sleepDate = document.getElementById('sleepDate').value;
+            const bedTime = document.getElementById('bedTime').value;
+            const wakeTime = document.getElementById('wakeTime').value;
+            const phone = document.querySelector('input[name="phone"]:checked').value;
+            const feeling = document.getElementById('feeling').value;
+            
+            const sleepCalc = calculateSleepHours(bedTime, wakeTime);
+            
+            const sleepRecord = {
+                date: sleepDate,
+                bedTime: bedTime,
+                wakeTime: wakeTime,
+                sleepHours: sleepCalc.total,
+                phone: phone,
+                feeling: feeling,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Сохранить
+            const history = JSON.parse(localStorage.getItem('toshkaSleepHistory') || '[]');
+            
+            // Удалить запись за эту дату если есть
+            const filtered = history.filter(s => s.date !== sleepDate);
+            filtered.push(sleepRecord);
+            
+            localStorage.setItem('toshkaSleepHistory', JSON.stringify(filtered));
+            
+            // Показать поддержку
+            showSupportMessage(sleepRecord);
+            
+            alert('✅ Сон записан!');
+            document.getElementById('sleepForm').reset();
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            document.getElementById('sleepDate').valueAsDate = yesterday;
+            document.getElementById('wakeTime').value = '05:50';
+            
+            loadTodaySleep();
+            loadRecentSleep();
+        }
+
+        // Показать сообщение поддержки
+        function showSupportMessage(record) {
+            const container = document.getElementById('supportMessageContainer');
+            
+            const targetBedTime = 22 * 60; // 22:00 в минутах
+            const [bedH, bedM] = record.bedTime.split(':').map(Number);
+            const actualBedTime = bedH * 60 + bedM;
+            
+            const onTime = actualBedTime <= targetBedTime + 30; // 30 минут допуск
+            const goodSleep = record.sleepHours >= 7.5;
+            const noPhone = record.phone === 'no';
+            const goodFeeling = record.feeling === 'excellent' || record.feeling === 'good';
+            
+            let message = '';
+            let icon = '';
+            
+            if (onTime && goodSleep && noPhone && goodFeeling) {
+                message = '🏆 ТРА-ЛЯ-ЛЯ! ИДЕАЛЬНЫЙ СОН! Капитан гордится!';
+                icon = '🦸';
+            } else if (onTime && goodSleep) {
+                message = '💪 ОТЛИЧНО! Лег вовремя и выспался! Супергеройский сон!';
+                icon = '🦸';
+            } else if (onTime) {
+                message = '👍 МОЛОДЕЦ! Лег вовремя! Капитан одобряет!';
+                icon = '🦸';
+            } else if (goodSleep) {
+                message = '😊 Хорошо выспался! Но попробуй лечь пораньше!';
+                icon = '💤';
+            } else {
+                message = '💙 Капитан верит в тебя! Сегодня ляжешь пораньше!';
+                icon = '🦸';
+            }
+            
+            container.innerHTML = `
+                <div class="support-message">
+                    <div class="support-icon">${icon}</div>
+                    <div class="support-text">${message}</div>
+                </div>
+            `;
+        }
+
+        // Загрузка сегодняшнего сна
+        function loadTodaySleep() {
+            const today = new Date().toISOString().split('T')[0];
+            const history = JSON.parse(localStorage.getItem('toshkaSleepHistory') || '[]');
+            const todayRecord = history.find(s => s.date === today);
+            
+            const card = document.getElementById('todaySleepCard');
+            const info = document.getElementById('todaySleepInfo');
+            
+            if (!todayRecord) {
+                card.style.display = 'none';
+                return;
+            }
+            
+            card.style.display = 'block';
+            
+            const sleepCalc = calculateSleepHours(todayRecord.bedTime, todayRecord.wakeTime);
+            const feelingText = {
+                excellent: 'Отлично!',
+                good: 'Хорошо',
+                tired: 'Уставший',
+                bad: 'Плохо'
+            };
+            
+            info.innerHTML = `
+                <div class="sleep-info">
+                    <div class="sleep-stat">
+                        <span class="stat-label">🌙 Лег спать:</span>
+                        <span class="stat-value">${todayRecord.bedTime}</span>
+                    </div>
+                    <div class="sleep-stat">
+                        <span class="stat-label">☀️ Проснулся:</span>
+                        <span class="stat-value">${todayRecord.wakeTime}</span>
+                    </div>
+                    <div class="sleep-stat">
+                        <span class="stat-label">⏰ Спал:</span>
+                        <span class="stat-value">${sleepCalc.hours}ч ${sleepCalc.minutes}мин</span>
+                    </div>
+                    <div class="sleep-stat">
+                        <span class="stat-label">📱 Телефон:</span>
+                        <span class="stat-value">${todayRecord.phone === 'yes' ? 'Да' : 'Нет'}</span>
+                    </div>
+                    <div class="sleep-stat">
+                        <span class="stat-label">😴 Самочувствие:</span>
+                        <span class="stat-value">${feelingText[todayRecord.feeling]}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Загрузка последних записей
+        function loadRecentSleep() {
+            const history = JSON.parse(localStorage.getItem('toshkaSleepHistory') || '[]');
+            const container = document.getElementById('recentSleepList');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-data"><div class="no-data-icon">💤</div><p>Пока нет записей о сне</p></div>';
+                return;
+            }
+            
+            const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 7);
+            container.innerHTML = sorted.map(record => formatSleepItem(record)).join('');
+        }
+
+        // Форматирование записи
+        function formatSleepItem(record) {
+            const date = new Date(record.date);
+            const dateStr = date.toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            
+            const sleepCalc = calculateSleepHours(record.bedTime, record.wakeTime);
+            const goodSleep = record.sleepHours >= 7.5;
+            const itemClass = goodSleep ? 'good-sleep' : 'bad-sleep';
+            
+            const feelingEmoji = {
+                excellent: '😊',
+                good: '🙂',
+                tired: '😐',
+                bad: '😟'
+            };
+            
+            return `
+                <div class="history-item ${itemClass}">
+                    <div class="history-date">${dateStr}</div>
+                    <div class="history-detail">🌙 Лег: ${record.bedTime} → ☀️ Встал: ${record.wakeTime}</div>
+                    <div class="history-detail">⏰ Спал: ${sleepCalc.hours}ч ${sleepCalc.minutes}мин</div>
+                    <div class="history-detail">📱 Телефон: ${record.phone === 'yes' ? 'Да' : 'Нет'} | ${feelingEmoji[record.feeling]} ${record.feeling === 'excellent' ? 'Отлично' : record.feeling === 'good' ? 'Хорошо' : record.feeling === 'tired' ? 'Устал' : 'Плохо'}</div>
+                </div>
+            `;
+        }
+
+        // Статистика
+        function displayStats() {
+            const history = JSON.parse(localStorage.getItem('toshkaSleepHistory') || '[]');
+            const container = document.getElementById('statsGrid');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-data" style="grid-column: 1/-1;"><p>Пока нет данных</p></div>';
+                return;
+            }
+            
+            const totalNights = history.length;
+            const avgSleep = history.reduce((sum, r) => sum + r.sleepHours, 0) / totalNights;
+            const goodSleepCount = history.filter(r => r.sleepHours >= 7.5).length;
+            const noPhoneCount = history.filter(r => r.phone === 'no').length;
+            
+            // Последние 7 дней
+            const last7 = history.slice(-7);
+            const streak = calculateStreak(history);
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-card-value">${totalNights}</div>
+                    <div class="stat-card-label">Всего ночей</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${avgSleep.toFixed(1)}ч</div>
+                    <div class="stat-card-label">Средний сон</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${goodSleepCount}</div>
+                    <div class="stat-card-label">Выспался (7.5ч+)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${noPhoneCount}</div>
+                    <div class="stat-card-label">Без телефона</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-value">${streak}</div>
+                    <div class="stat-card-label">Дней подряд вовремя</div>
+                </div>
+            `;
+        }
+
+        // Расчет серии
+        function calculateStreak(history) {
+            const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+            let streak = 0;
+            const targetBedTime = 22 * 60 + 30; // 22:30
+            
+            for (const record of sorted) {
+                const [bedH, bedM] = record.bedTime.split(':').map(Number);
+                const actualBedTime = bedH * 60 + bedM;
+                
+                if (actualBedTime <= targetBedTime) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+
+        // Вся история
+        function displayAllSleep() {
+            const history = JSON.parse(localStorage.getItem('toshkaSleepHistory') || '[]');
+            const container = document.getElementById('allSleepList');
+            
+            if (history.length === 0) {
+                container.innerHTML = '<div class="no-data"><div class="no-data-icon">📚</div><p>Пока нет записей</p></div>';
+                return;
+            }
+            
+            const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = sorted.map(record => formatSleepItem(record)).join('');
+        }
+
+        // Скачать отчет
+        function downloadReport() {
+            const history = JSON.parse(localStorage.getItem('toshkaSleepHistory') || '[]');
+            
+            if (history.length === 0) {
+                alert('Нет данных для отчета');
+                return;
+            }
+            
+            let report = '=== ОТЧЕТ ПО СНУ - ТОШКА ===\n\n';
+            report += `Дата создания: ${new Date().toLocaleString('ru-RU')}\n\n`;
+            
+            // Статистика
+            const avgSleep = history.reduce((sum, r) => sum + r.sleepHours, 0) / history.length;
+            const goodSleep = history.filter(r => r.sleepHours >= 7.5).length;
+            const noPhone = history.filter(r => r.phone === 'no').length;
+            
+            report += '--- СТАТИСТИКА ---\n';
+            report += `Всего ночей: ${history.length}\n`;
+            report += `Средняя продолжительность сна: ${avgSleep.toFixed(1)} часов\n`;
+            report += `Выспался (7.5ч+): ${goodSleep} раз\n`;
+            report += `Без телефона: ${noPhone} раз\n\n`;
+            
+            // История
+            report += '--- ИСТОРИЯ СНА ---\n\n';
+            const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sorted.forEach(record => {
+                const sleepCalc = calculateSleepHours(record.bedTime, record.wakeTime);
+                const feelingText = {excellent: 'Отлично', good: 'Хорошо', tired: 'Устал', bad: 'Плохо'};
+                
+                report += `Дата: ${new Date(record.date).toLocaleDateString('ru-RU')}\n`;
+                report += `Лег спать: ${record.bedTime}\n`;
+                report += `Проснулся: ${record.wakeTime}\n`;
+                report += `Спал: ${sleepCalc.hours}ч ${sleepCalc.minutes}мин\n`;
+                report += `Телефон перед сном: ${record.phone === 'yes' ? 'Да' : 'Нет'}\n`;
+                report += `Самочувствие утром: ${feelingText[record.feeling]}\n\n`;
+            });
+            
+            // Скачать
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sleep-report-toshka-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
